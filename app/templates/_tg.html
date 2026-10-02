@@ -1,0 +1,31 @@
+{% from "_icons.html" import icon %}
+<div id="tg" {% if tg.state in ('qr', 'password') %}hx-get="/settings/tg" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  {% if tg.error %}<p class="error" role="alert">{{ tg.error }}</p>{% endif %}
+  {% if tg.state == 'connected' and tg_me %}
+    <p class="ok-line"><i class="dot st-won"></i> Подключён: <b>{{ tg_me }}</b></p>
+    {% if user == 'admin' %}
+    <form hx-post="/settings/tg/contacts" hx-target="#tg" hx-swap="outerHTML" class="inline">
+      <input type="hidden" name="skip" value="{{ '0' if skip_contacts else '1' }}">
+      <label class="switch"><input type="checkbox" {{ 'checked' if skip_contacts }} data-submit> Не создавать лидов из сообщений людей, которые есть в контактах</label>
+    </form>
+    <button class="btn btn-danger-ghost" hx-post="/settings/tg/disconnect" hx-target="#tg" hx-swap="outerHTML" hx-confirm="Отключить аккаунт? Новые сообщения перестанут попадать в CRM.">Отключить</button>
+    {% else %}
+    <p class="muted">{{ 'Сообщения от людей из контактов пропускаются.' if skip_contacts else 'Лидами становятся сообщения от всех людей.' }} Менять подключение может только администратор.</p>
+    {% endif %}
+  {% elif tg.state == 'qr' %}
+    <div class="qr">{{ qr_svg|safe }}</div>
+    <ol class="steps"><li>Откройте Telegram на телефоне</li><li>Настройки → Устройства → Подключить устройство</li><li>Наведите камеру на код</li></ol>
+    <button class="btn" hx-post="/settings/tg/cancel" hx-target="#tg" hx-swap="outerHTML">Отмена</button>
+  {% elif tg.state == 'password' %}
+    <form hx-post="/settings/tg/password" hx-target="#tg" hx-swap="outerHTML" class="stack">
+      <label for="pw">На аккаунте включён облачный пароль. Введите его:</label>
+      <input id="pw" name="password" type="password" required autocomplete="off">
+      <div class="row"><button class="btn btn-primary">Войти</button><button type="button" class="btn" hx-post="/settings/tg/cancel" hx-target="#tg" hx-swap="outerHTML">Отмена</button></div>
+    </form>
+  {% else %}
+    <p>Аккаунт не подключён.</p>
+    {% if user == 'admin' %}
+    <button class="btn btn-primary" hx-post="/settings/tg/connect" hx-target="#tg" hx-swap="outerHTML">{{ icon('telegram', 16) }} Подключить по QR-коду</button>
+    {% else %}<p class="muted">Подключить аккаунт может только администратор.</p>{% endif %}
+  {% endif %}
+</div>

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon, src_icon %}
+{% block title %}{{ lead.name }}{% endblock %}
+{% block body %}
+<main class="page">
+  <a class="back" href="/">{{ icon('back', 16) }} Все лиды</a>
+  <div class="lead-grid">
+    <section class="card">
+      <form class="lead-form" hx-post="/leads/{{ lead.id }}" hx-trigger="change delay:200ms" hx-target="#saved" hx-swap="innerHTML">
+        <div class="lead-head">
+          <input class="title-input" name="name" value="{{ lead.name }}" aria-label="Имя" required maxlength="200">
+          <select name="status" class="status-select st-{{ lead.status }}" aria-label="Статус">
+            {% for k, label in STATUSES.items() %}<option value="{{ k }}" {{ 'selected' if lead.status == k }}>{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <label for="contact">Контакт</label>
+        <input id="contact" name="contact" value="{{ lead.contact }}" maxlength="200" placeholder="Телефон, почта или ник">
+        <label for="req">Запрос</label>
+        <textarea id="req" name="req" rows="4" maxlength="4000" placeholder="Что нужно клиенту">{{ lead.request }}</textarea>
+        <p class="saved" id="saved" aria-live="polite"></p>
+      </form>
+
+      {% include "_tags.html" %}
+    </section>
+
+    <aside class="side">
+      <section class="card meta">
+        <dl>
+          <dt>Источник</dt><dd><span class="src-badge src-{{ lead.source }}">{{ src_icon(lead.source) }}{{ SOURCES[lead.source] }}</span></dd>
+          <dt>Создан</dt><dd>{{ lead.created_at|local }}</dd>
+          <dt>Обновлён</dt><dd>{{ lead.updated_at|local }}</dd>
+          <dt>№</dt><dd>{{ lead.id }}</dd>
+        </dl>
+        {% if lead.tg_username %}
+        <a class="btn wide" href="https://t.me/{{ lead.tg_username }}" target="_blank" rel="noopener">{{ icon('telegram', 16) }} Написать в Telegram</a>
+        {% endif %}
+      </section>
+      <section class="card" id="messages">
+        <h2>История</h2>
+        {% for m in lead.messages %}
+        <div class="msg"><time>{{ m.created_at|local }}</time><p>{{ m.text }}</p></div>
+        {% else %}
+        <p class="muted">Сообщений нет: лид заведён вручную.</p>
+        {% endfor %}
+      </section>
+      {% if user == 'admin' %}
+      <form action="/leads/{{ lead.id }}/delete" method="post" hx-confirm="Удалить лида «{{ lead.name }}» без возможности восстановить?">
+        <button class="btn btn-danger-ghost wide">{{ icon('trash', 16) }} Удалить лида</button>
+      </form>
+      {% endif %}
+    </aside>
+  </div>
+</main>
+<div id="live" data-page="lead" data-id="{{ lead.id }}" hidden></div>
+{% endblock %}

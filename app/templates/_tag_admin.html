@@ -1,0 +1,14 @@
+<div id="tag-admin">
+  {% if tag_error %}<p class="error" role="alert">{{ tag_error }}</p>{% endif %}
+  {% for t in tags %}
+  <form class="tag-row" hx-post="/tags/{{ t.id }}/rename" hx-target="#tag-admin" hx-swap="outerHTML">
+    <i class="dot tagdot-{{ t.color }}"></i>
+    <input name="name" value="{{ t.name }}" aria-label="Название тега" maxlength="40" required>
+    <span class="muted">{{ t.n }} лид.</span>
+    <button class="btn btn-sm">Переименовать</button>
+    {% if user == 'admin' %}<button type="button" class="btn btn-sm btn-danger-ghost" hx-post="/tags/{{ t.id }}/delete" hx-target="#tag-admin" hx-swap="outerHTML" hx-confirm="Удалить тег «{{ t.name }}»? С лидов он тоже снимется.">Удалить</button>{% endif %}
+  </form>
+  {% else %}
+  <p class="muted">Тегов пока нет. Их ставят в карточке лида.</p>
+  {% endfor %}
+</div>

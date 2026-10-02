@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon, tagchip, src_icon %}
+{% block body %}
+<div id="workspace" class="layout" hx-boost="true" hx-target="#workspace" hx-select="#workspace" hx-swap="outerHTML">
+  <nav class="sidebar" aria-label="Фильтры">
+    <a class="nav-item {{ 'active' if not (f.source or f.status or f.tag) }}" href="/{{ '?q=' ~ f.q if f.q else '' }}">{{ icon('inbox', 16) }}<span>Все лиды</span><em>{{ counts.total }}</em></a>
+    <div class="nav-group">Источник</div>
+    {% for k, label in SOURCES.items() %}
+    <a class="nav-item {{ 'active' if f.source == k }}" href="{{ qs(source=None if f.source == k else k) }}">{{ src_icon(k) }}<span>{{ label }}</span><em>{{ counts.source.get(k, 0) }}</em></a>
+    {% endfor %}
+    <div class="nav-group">Статус</div>
+    {% for k, label in STATUSES.items() %}
+    <a class="nav-item {{ 'active' if f.status == k }}" href="{{ qs(status=None if f.status == k else k) }}"><i class="dot st-{{ k }}"></i><span>{{ label }}</span><em>{{ counts.status.get(k, 0) }}</em></a>
+    {% endfor %}
+    <div class="nav-group">Теги</div>
+    {% for t in tags %}
+    <a class="nav-item {{ 'active' if f.tag == t.id }}" href="{{ qs(tag=None if f.tag == t.id else t.id) }}"><i class="dot tagdot-{{ t.color }}"></i><span>{{ t.name }}</span><em>{{ t.n }}</em></a>
+    {% else %}
+    <p class="nav-empty">Тегов пока нет. Их ставят в карточке лида.</p>
+    {% endfor %}
+  </nav>
+
+  <main class="content">
+    <div class="content-head">
+      <h1>{% if active_tag %}#{{ active_tag.name }}{% elif f.source %}{{ SOURCES[f.source] }}{% elif f.status %}{{ STATUSES[f.status] }}{% else %}Все лиды{% endif %} <span class="muted">{{ leads|length }}</span></h1>
+      {% if f.tag or f.source or f.status or f.q %}
+      <div class="active-filters">
+        {% if f.q %}<a class="chip" href="{{ qs(q=None) }}">«{{ f.q }}» {{ icon('x', 12) }}</a>{% endif %}
+        {% if f.source %}<a class="chip" href="{{ qs(source=None) }}">{{ SOURCES[f.source] }} {{ icon('x', 12) }}</a>{% endif %}
+        {% if f.status %}<a class="chip" href="{{ qs(status=None) }}">{{ STATUSES[f.status] }} {{ icon('x', 12) }}</a>{% endif %}
+        {% if active_tag %}<a class="chip" href="{{ qs(tag=None) }}">#{{ active_tag.name }} {{ icon('x', 12) }}</a>{% endif %}
+        <a class="chip chip-ghost" href="/">Сбросить</a>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if leads %}
+    <table class="leads">
+      <thead><tr><th>Кто</th><th>Запрос</th><th>Теги</th><th>Источник</th><th>Статус</th><th>Обновлён</th></tr></thead>
+      <tbody>
+      {% for l in leads %}
+      <tr data-id="{{ l.id }}" data-href="/leads/{{ l.id }}">
+        <td class="who"><a href="/leads/{{ l.id }}" hx-boost="false">{{ l.name }}</a><small>{{ l.contact or '—' }}</small></td>
+        <td class="req">{{ l.request|truncate(120) or '—' }}</td>
+        <td class="tags-cell">{% for t in l.tags %}{{ tagchip(t) }}{% endfor %}</td>
+        <td class="src"><span class="src-badge src-{{ l.source }}">{{ src_icon(l.source) }}{{ SOURCES[l.source] }}</span></td>
+        <td><span class="status st-{{ l.status }}">{{ STATUSES[l.status] }}</span></td>
+        <td class="time" title="{{ l.updated_at|local }}">{{ l.updated_at|ago }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% elif f.tag or f.source or f.status or f.q %}
+    <div class="empty"><p>По этим фильтрам лидов нет.</p><a class="btn" href="/">Показать всех</a></div>
+    {% else %}
+    <div class="empty">
+      <p class="empty-title">Лидов пока нет</p>
+      <p>Напишите боту <a href="https://t.me/{{ BOT_USERNAME }}" target="_blank" rel="noopener">@{{ BOT_USERNAME }}</a>, и заявка появится здесь сама. Или добавьте лида вручную.</p>
+      <a class="btn btn-primary" href="/leads/new" hx-boost="false">{{ icon('plus', 16) }} Добавить лида</a>
+    </div>
+    {% endif %}
+  </main>
+</div>
+<div id="live" data-page="list" hidden></div>
+{% endblock %}

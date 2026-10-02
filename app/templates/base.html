@@ -1,0 +1,28 @@
+{% from "_icons.html" import icon %}<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Заявки{% endblock %} · Мини-CRM</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/style.css?v=2">
+<script src="/static/htmx.min.js" defer></script>
+<script src="/static/app.js?v=1" defer></script>
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+{% if user %}
+<header class="topbar">
+  <a class="brand" href="/">{{ icon('inbox', 20) }}<span>Заявки</span></a>
+  <form class="search" action="/" method="get" role="search">
+    {{ icon('search', 16) }}
+    <input type="search" name="q" value="{{ f.q or '' if f else '' }}" placeholder="Поиск по имени, контакту, тексту" aria-label="Поиск">
+    {% if f %}{% for k in ('tag','source','status') %}{% if f[k] %}<input type="hidden" name="{{ k }}" value="{{ f[k] }}">{% endif %}{% endfor %}{% endif %}
+  </form>
+  <a class="btn btn-primary" href="/leads/new">{{ icon('plus', 16) }}<span>Лид</span></a>
+  <a class="btn-icon" href="/settings" aria-label="Настройки" title="Настройки">{{ icon('settings') }}</a>
+  <form action="/logout" method="post"><button class="btn-icon" aria-label="Выйти" title="Выйти ({{ user }})">{{ icon('logout') }}</button></form>
+</header>
+{% endif %}
+{% block body %}{% endblock %}
+</body>
+</html>

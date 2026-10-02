@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Новый лид{% endblock %}
+{% block body %}
+<main class="page narrow">
+  <a class="back" href="/">{{ icon('back', 16) }} Все лиды</a>
+  <section class="card">
+    <h1>Новый лид</h1>
+    <form method="post" action="/leads" class="stack">
+      <label for="name">Имя <span class="req-mark">обязательно</span></label>
+      <input id="name" name="name" value="{{ form.name or '' }}" required maxlength="200" autofocus>
+      <label for="contact">Контакт</label>
+      <input id="contact" name="contact" value="{{ form.contact or '' }}" maxlength="200" placeholder="Телефон, почта или ник">
+      <label for="req">Запрос</label>
+      <textarea id="req" name="req" rows="4" maxlength="4000" placeholder="Что нужно клиенту">{{ form.req or '' }}</textarea>
+      <label for="tags">Теги</label>
+      <input id="tags" name="tags" value="{{ form.tags or '' }}" placeholder="Через запятую: сайт, срочно" maxlength="300">
+      {% if tags %}<p class="hint">Уже есть: {% for t in tags[:12] %}<button type="button" class="link-btn" data-add-tag="{{ t.name }}">{{ t.name }}</button>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+      {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+      <button class="btn btn-primary">Сохранить лида</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

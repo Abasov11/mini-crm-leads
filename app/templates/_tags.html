@@ -1,0 +1,18 @@
+{% from "_icons.html" import icon, tagchip %}
+{% set unused = tags | rejectattr('id', 'in', lead.tags|map(attribute='id')|list) | list %}
+<div id="tags" class="tags-block">
+  <h2>{{ icon('tag', 16) }} Теги</h2>
+  <div class="tag-list">
+    {% for t in lead.tags %}{{ tagchip(t, href='/?tag=' ~ t.id, remove='/leads/' ~ lead.id ~ '/tags/' ~ t.id ~ '/delete') }}{% else %}<span class="muted">Тегов нет</span>{% endfor %}
+  </div>
+  <form class="tag-add" hx-post="/leads/{{ lead.id }}/tags" hx-target="#tags" hx-swap="outerHTML">
+    <input name="name" list="all-tags" placeholder="Добавить тег, например «сайт»" aria-label="Новый тег" maxlength="40" autocomplete="off" required>
+    <datalist id="all-tags">{% for t in unused %}<option value="{{ t.name }}">{% endfor %}</datalist>
+    <button class="btn">{{ icon('plus', 16) }}<span>Добавить</span></button>
+  </form>
+  {% if unused %}
+  <div class="tag-suggest"><span class="muted">Быстро:</span>
+    {% for t in unused[:8] %}<button type="button" class="tag tag-{{ t.color }} tag-btn" hx-post="/leads/{{ lead.id }}/tags" hx-vals='{"name": {{ t.name|tojson }}}' hx-target="#tags" hx-swap="outerHTML">+ {{ t.name }}</button>{% endfor %}
+  </div>
+  {% endif %}
+</div>

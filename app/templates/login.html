@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Вход{% endblock %}
+{% block bodyclass %}center{% endblock %}
+{% block body %}
+<main class="login card">
+  <div class="brand big">{{ icon('inbox', 28) }}<span>Мини-CRM заявок</span></div>
+  <form method="post" action="/login">
+    <input type="hidden" name="next" value="{{ next }}">
+    <label for="u">Логин</label>
+    <input id="u" name="username" autocomplete="username" required autofocus>
+    <label for="p">Пароль</label>
+    <input id="p" name="password" type="password" autocomplete="current-password" required>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <button class="btn btn-primary wide">Войти</button>
+  </form>
+  <p class="hint">Демо-доступ для проверки: <b>demo</b> / <b>{{ DEMO_PASSWORD }}</b></p>
+  <p class="hint"><a href="/doc">{{ icon('doc', 14) }} Описание продукта и разбор</a></p>
+</main>
+{% endblock %}

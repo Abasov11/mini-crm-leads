@@ -1,0 +1,7 @@
+venv/
+.env
+data/
+shots/
+__pycache__/
+*.pdf
+.pytest_cache/

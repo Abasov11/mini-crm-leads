@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Настройки{% endblock %}
+{% block body %}
+<main class="page narrow">
+  <a class="back" href="/">{{ icon('back', 16) }} Все лиды</a>
+  <h1>Настройки</h1>
+  <section class="card">
+    <h2>{{ icon('bot', 16) }} Бот для заявок</h2>
+    <p>Клиенты оставляют заявку в боте <a href="https://t.me/{{ BOT_USERNAME }}" target="_blank" rel="noopener">@{{ BOT_USERNAME }}</a>. Ссылку можно ставить на сайт, в шапку профиля и в рекламу.</p>
+  </section>
+  <section class="card">
+    <h2>{{ icon('inbox', 16) }} Уведомления о новых заявках</h2>
+    <p>Откройте ссылку в Telegram и нажмите «Старт». Каждая новая заявка из бота, лички или ручного ввода будет приходить в этот чат с кнопкой «Открыть в CRM». Отключить: команда /stop в боте.</p>
+    <p><a class="btn" href="{{ notify_link }}" target="_blank" rel="noopener">{{ icon('telegram', 16) }} Получать уведомления</a></p>
+    <p class="muted">Подписано чатов: {{ notify_count }}. Ссылка видна только тем, кто вошёл в CRM.</p>
+  </section>
+  <section class="card">
+    <h2>{{ icon('telegram', 16) }} Подключённый Telegram</h2>
+    <p class="muted">Входящие личные сообщения в этот аккаунт становятся лидами. Повторные сообщения от того же человека добавляются в историю его открытого лида.</p>
+    {% if tg_me %}<p>Проверить: напишите в личку <b>{{ tg_me }}</b> с любого аккаунта, которого нет у него в контактах.</p>{% endif %}
+    {% include "_tg.html" %}
+  </section>
+  <section class="card">
+    <h2>{{ icon('tag', 16) }} Теги</h2>
+    {% include "_tag_admin.html" %}
+  </section>
+</main>
+{% endblock %}
